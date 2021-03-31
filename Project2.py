@@ -15,7 +15,24 @@ def get_titles_from_search_results(filename):
     [('Book title 1', 'Author 1'), ('Book title 2', 'Author 2')...]
     """
 
-    pass
+    t = []
+    f = open(filename)
+    soup = BeautifulSoup(f, "html.parser")
+    f.close()
+
+    div = soup.find("div", class_="mainContentContainer")
+    books = div.find_all("tr")
+
+    for book in books:
+        a1 = book.find("a", class_="bookTitle")
+        title = a1.find("span").text
+
+        a2 = book.find("a", class_="authorName")
+        author = a2.find("span").text
+
+        t.append((title, author))
+    
+    return t
 
 
 def get_search_links():
@@ -32,7 +49,21 @@ def get_search_links():
 
     """
 
-    pass
+    url = "https://www.goodreads.com/search?q=fantasy&qid=NwUsLiA2Nc"  
+    r = requests.get(url)
+    soup = BeautifulSoup(r.text, "html.parser")
+    lst = []
+
+    div = soup.find("div", class_="mainContentFloat")
+    table = div.find("table")
+    trs = table.find_all("tr")
+
+    for tr in trs:
+        td = tr.find_all("td")[0]
+        href = td.find("a")["href"]
+        lst.append("https://www.goodreads.com" + href)
+
+    return lst[:10]
 
 
 def get_book_summary(book_url):
@@ -96,7 +127,26 @@ def extra_credit(filepath):
     Please see the instructions document for more information on how to complete this function.
     You do not have to write test cases for this function.
     """
-    pass
+    
+    url = "https://www.goodreads.com/book/show/42975172-the-testaments?ac=1&from_search=true&qid=gmLO3ySp28&rank=1"
+    resp = requests.get(url)
+    soup = BeautifulSoup(resp.content, 'html.parser')
+    lst = []
+
+    div1 = soup.find("div", class_="mainContent")
+    left_container = div1.find("div", class_="leftContainer")
+    col = left_container.find("div", class_="last col")
+    right_div = col.find_all("div")[2]
+    right_span = right_div.find_all("span")[1]
+    all_text = right_span.text
+
+    regex = r"[A-Z]\w{2,}\s{1}[A-Z]\w{1,}"
+    lst = []
+    for section in all_text:
+        temp = re.findall(regex, section.text)
+        for item in temp:
+            lst.append(item)
+    return lst     
 
 class TestCases(unittest.TestCase):
 
