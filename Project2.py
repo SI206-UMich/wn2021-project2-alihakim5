@@ -80,7 +80,21 @@ def get_book_summary(book_url):
     Make sure to strip() any newlines from the book title and number of pages.
     """
 
-    pass
+     r = requests.get(book_url)
+
+    soup = BeautifulSoup(r.text, "html.parser")
+
+    title = soup.find("h1", id="bookTitle").text.strip()
+    author = soup.find("a", class_="authorName").text.strip()
+    pages_string = soup.find("span", itemprop="numberOfPages").text.strip()
+    pages_list = re.findall(r"\d{1,}", pages_string)
+    pages = int(pages_list[0])
+
+    t = (title, author, pages)
+    
+    return t
+
+
 
 
 def summarize_best_books(filepath):
@@ -94,7 +108,22 @@ def summarize_best_books(filepath):
     ("Fiction", "The Testaments (The Handmaid's Tale, #2)", "https://www.goodreads.com/choiceawards/best-fiction-books-2020") 
     to your list of tuples.
     """
-    pass
+    f = open(filepath)
+    soup = BeautifulSoup(f, "html.parser")
+    f.close()
+
+    lst = []
+
+    div1 = soup.find("div", class_="mainContent")
+    categories = div1.find_all("div", class_="category clearFix")
+
+    for category in categories:
+        genre = category.find("a").find("h4").text.strip()
+        title = category.find("div", class_="category__winnerImageContainer").find("img")["alt"]
+        href = category.find("a")["href"]
+        lst.append((genre, title, href))
+    
+    return lst 
 
 
 def write_csv(data, filename):
