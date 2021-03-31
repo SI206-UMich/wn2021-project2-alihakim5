@@ -146,7 +146,11 @@ def write_csv(data, filename):
 
     This function should not return anything.
     """
-    pass
+    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), filename), "w") as f:
+        obj = csv.writer(f, delimiter=",")
+        obj.writerow(["Book Title", "Author Name"])
+        for row in data:
+            obj.writerow(row)
 
 
 def extra_credit(filepath):
